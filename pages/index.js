@@ -1,34 +1,7 @@
 import { Box, Button, Text, TextField, Image } from '@skynexui/components';
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 import AppConfig from '../config.json';
-
-function GlobalStyle() {
-    return (
-        <style global jsx>{`
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-          list-style: none;
-        }
-        body {
-          font-family: 'Open Sans', sans-serif;
-        }
-        /* App fit Height */ 
-        html, body, #__next {
-          min-height: 100vh;
-          display: flex;
-          flex: 1;
-        }
-        #__next {
-          flex: 1;
-        }
-        #__next > * {
-          flex: 1;
-        }
-        /* ./App fit Height */ 
-      `}</style>
-    );
-}
 
 function Titulo(props) {
     const Tag = props.tag || 'h1';
@@ -62,11 +35,13 @@ function Titulo(props) {
 // export default HomePage
 
 export default function PaginaInicial() {
-    const username = 'RichardKT88';
+    // const username = 'RichardKT88';
+    const [username, setUsername] = useState('RichardKT88');
+    const roteamento = useRouter();
+    const temMenos2Letras = username.length <= 2 ? true : false;
 
     return (
         <>
-            <GlobalStyle />
             <Box
                 styleSheet={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -93,6 +68,11 @@ export default function PaginaInicial() {
                     {/* Formulário */}
                     <Box
                         as="form"
+                        onSubmit={function (infoDoEvento) {
+                            infoDoEvento.preventDefault();
+                            console.log('Alguém submeteu o form');
+                            roteamento.push('/chat');
+                        }}
                         styleSheet={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                             width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
@@ -102,8 +82,19 @@ export default function PaginaInicial() {
                         <Text variant="body3" styleSheet={{ marginBottom: '32px', color: AppConfig.theme.colors.neutrals[300] }}>
                             {AppConfig.name}
                         </Text>
+                        {/* <input
+                            type="text"
+                            value={username}
+                            onChange={function(event) {
+                                console.log('Usuário digitou', event.target.value);
+                                //Onde tá o valor
+                                const valor = event.target.value;
+                                setUsername(valor);
+                            }}
+                        /> */}
 
                         <TextField
+                            value={username}
                             fullWidth
                             textFieldColors={{
                                 neutral: {
@@ -113,10 +104,19 @@ export default function PaginaInicial() {
                                     backgroundColor: AppConfig.theme.colors.neutrals[800],
                                 },
                             }}
+
+                            onChange={function (event) {
+                                console.log('Usuário digitou', event.target.value);
+                                //Onde tá o valor
+                                const valor = event.target.value;
+                                setUsername(valor);
+                                
+                            }}
                         />
                         <Button
                             type='submit'
                             label='Entrar'
+                            disabled={temMenos2Letras}
                             fullWidth
                             buttonColors={{
                                 contrastColor: AppConfig.theme.colors.neutrals["000"],
@@ -150,7 +150,7 @@ export default function PaginaInicial() {
                                 borderRadius: '50%',
                                 marginBottom: '16px',
                             }}
-                            src={`https://github.com/${username}.png`}
+                            src={temMenos2Letras ? '' : `https://github.com/${username}.png`}
                         />
                         <Text
                             variant="body4"
