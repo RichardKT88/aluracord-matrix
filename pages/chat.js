@@ -41,6 +41,15 @@ export default function ChatPage() {
         setMensagem('');
     }
 
+    function deletaMensagem(e) {
+        const mensagemId = Number(e.target.dataset.id)
+        const listaDeMensagensFiltrada = listaDeMensagens.filter((mensagemFiltrada) => {
+            return mensagemFiltrada.id !== mensagemId
+        })
+
+        setListaDeMensagens(listaDeMensagensFiltrada)
+    }
+
     return (
         <Box
             styleSheet={{
@@ -78,7 +87,7 @@ export default function ChatPage() {
                         padding: '16px',
                     }}
                 >
-                    <MessageList mensagens={listaDeMensagens} />
+                    <MessageList mensagens={listaDeMensagens} deletaMensagem={deletaMensagem} />
                     {/* {listaDeMensagens.map((mensagemAtual) => {
                         o map recebe uma entrada do array mapeia e retorna uma saída.
                         return (
@@ -120,24 +129,17 @@ export default function ChatPage() {
                             }}
                         />
                         <Button label="Ok"
-                            value={mensagem}
-                            colorVariant='light'
+                            fullWidth
                             styleSheet={{
-                                // width: '100%',
-                                height: '100%',
-                                justifyContent: 'center',
-                                border: '0',
-                                resize: 'none',
-                                borderRadius: '5px',
-                                padding: '6px 8px',
-                                backgroundColor: appConfig.theme.colors.neutrals[800],
-                                color: appConfig.theme.colors.neutrals[200],
+                                maxWidth: '100px',
                             }}
-                            onClick={() => {
-                                // event.preventDefault();
-                                handleNovaMensagem(mensagem);
-                                }
-                            }
+                            buttonColors={{
+                                contrastColor: appConfig.theme.colors.neutrals["000"],
+                                mainColor: appConfig.theme.colors.primary[500],
+                                mainColorLight: appConfig.theme.colors.primary[400],
+                                mainColorStrong: appConfig.theme.colors.primary[600],
+                            }}
+                            onClick={() => { handleNovaMensagem(mensagem); }}
                         />
                     </Box>
                 </Box>
@@ -165,7 +167,9 @@ function Header() {
 }
 
 function MessageList(props) {
-    console.log(props);
+
+    const deletaMensagem = props.deletaMensagem
+
     return (
         <Box
             tag="ul"
@@ -220,16 +224,30 @@ function MessageList(props) {
                             >
                                 {(new Date().toLocaleDateString())}
                             </Text>
+                            <Text
+                                onClick={deletaMensagem}
+                                styleSheet={{
+                                    fontSize: '10px',
+                                    fontWeight: 'bold',
+                                    marginLeft: 'auto',
+                                    color: '#FFF',
+                                    backgroundColor: 'rgba(0,0,0,.5)',
+                                    width: '20px',
+                                    height: '20px',
+                                    borderRadius: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                }}
+                                tag="span"
+                                data-id={mensagem.id}
+                            >
+                                X
+                            </Text>
                         </Box>
                         {mensagem.texto}
-                        <Button
-                            iconName="FaRegWindowClose"
-                            styleSheet={{
-                                fontSize: '20px',
-                                marginLeft: '550px',
-                                color: appConfig.theme.colors.neutrals[300],
-                            }}
-                        />
+
                     </Text>
                 );
             })}
