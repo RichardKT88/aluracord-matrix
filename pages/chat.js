@@ -24,7 +24,7 @@ export default function ChatPage() {
     // Desafio
     /*
         - [X] colocar um botão de Ok que tenha o mesmo comportamento ao pressionar o Enter.
-        - [ ] colocar um botãozinho de X para apagar a mensagem. Dica: Utilizar o Filter
+        - [X] colocar um botãozinho de X para apagar a mensagem. Dica: Utilizar o Filter
     */
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
@@ -247,7 +247,6 @@ function MessageList(props) {
                             </Text>
                         </Box>
                         {mensagem.texto}
-
                     </Text>
                 );
             })}
