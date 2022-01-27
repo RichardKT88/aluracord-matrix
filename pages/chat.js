@@ -1,34 +1,36 @@
-import { Box, Text, TextField, Image, Button } from '@skynexui/components';
+import { Box, Text, TextField, Image, Button, Icon  } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
 import { createClient } from '@supabase/supabase-js'
 
 export default function ChatPage() {
-    
+
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzI4NTcwMywiZXhwIjoxOTU4ODYxNzAzfQ.0LY75JG_VeA1TzsuNHe1atXozvdfw4EtPO3eeTebsSw';
     const SUPABASE_URL = 'https://kdizaecuxyiarimptcfw.supabase.co';
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
+
     const [mensagem, setMensagem] = React.useState('');
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
-     //Para lidar coisas que fogem do fluxo padrão(O que tem no nosso return). Se ele não faz parte do fluxo padrão é algo extra.
-     React.useEffect(() => {
+    const [loading, setLoading] = React.useState(true);
+    //Para lidar coisas que fogem do fluxo padrão(O que tem no nosso return). Se ele não faz parte do fluxo padrão é algo extra.
+    React.useEffect(() => {
         supabaseClient
-        .from('mensagens')
-        .select('*')
-        .order('id', {ascending: false})
-        .then(({data}) => {
-            console.log("Dados da consulta: ", data);
-            setListaDeMensagens(data);
-        });
-    },[]);  
+            .from('mensagens')
+            .select('*')
+            .order('id', { ascending: false })
+            .then(({ data }) => {
+                console.log("Dados da consulta: ", data);
+                setListaDeMensagens(data);
+                setLoading(false);
+            });
+    }, []);
 
     /*AULA 04 - 
     fetch("https://api.github.com/users/RichardKT88").then(async(respostaDoServidor) => {
         const respostaEsperada = await respostaDoServidor.json();
         console.log(respostaEsperada);
     })
-    - [ ] Mostra um loading enquanto está carregando (useEffect não passou);
+    - [X] Mostra um loading enquanto está carregando (useEffect não passou);
     - [ ] mouseover sobre a foto da pessoa
     - [ ] mandar pull, imagem ou anexos.
      * /
@@ -53,8 +55,8 @@ export default function ChatPage() {
         - [X] colocar um botão de Ok que tenha o mesmo comportamento ao pressionar o Enter.
         - [X] colocar um botãozinho de X para apagar a mensagem. Dica: Utilizar o Filter
     */
-    function handleNovaMensagem(novaMensagem) {      
-       
+    function handleNovaMensagem(novaMensagem) {
+
         const mensagem = {
             // id: listaDeMensagens.length + 1,
             de: 'vanessametonini',
@@ -62,21 +64,21 @@ export default function ChatPage() {
         };
 
         supabaseClient
-        .from('mensagens')
-        .insert([
-            mensagem
-        ])
-        .then(({data}) => {
-            console.log("Criando mensagem: ", data);
-            //Abaixo são lógicas de estado.
-            setListaDeMensagens([
-                data[0],
-                //o Spread Operator(...lista) abre todos os item que tem nesta lista e espalha eles na nova, porque senão ele criaria um array dentro de um array.
-                ...listaDeMensagens,
-            ]);
-        })
-        
-        
+            .from('mensagens')
+            .insert([
+                mensagem
+            ])
+            .then(({ data }) => {
+                console.log("Criando mensagem: ", data);
+                //Abaixo são lógicas de estado.
+                setListaDeMensagens([
+                    data[0],
+                    //o Spread Operator(...lista) abre todos os item que tem nesta lista e espalha eles na nova, porque senão ele criaria um array dentro de um array.
+                    ...listaDeMensagens,
+                ]);
+            })
+
+
         setMensagem('');
     }
 
@@ -89,6 +91,8 @@ export default function ChatPage() {
         setListaDeMensagens(listaDeMensagensFiltrada)
     }
 
+
+    const content = loading ? <Icon label="Icon Component" name="FaFirefox" size='20ch'/> : <MessageList mensagens={listaDeMensagens} deletaMensagem={deletaMensagem} />
     return (
         <Box
             styleSheet={{
@@ -126,7 +130,7 @@ export default function ChatPage() {
                         padding: '16px',
                     }}
                 >
-                    <MessageList mensagens={listaDeMensagens} deletaMensagem={deletaMensagem} />
+                    {content}
                     {/* {listaDeMensagens.map((mensagemAtual) => {
                         o map recebe uma entrada do array mapeia e retorna uma saída.
                         return (
