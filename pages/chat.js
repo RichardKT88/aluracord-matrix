@@ -1,14 +1,29 @@
-import { Box, Text, TextField, Image, Button, Icon  } from '@skynexui/components';
+import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
-import { createClient } from '@supabase/supabase-js'
+import { useRouter } from 'next/router';
+import { createClient } from '@supabase/supabase-js';
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
+
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzI4NTcwMywiZXhwIjoxOTU4ODYxNzAzfQ.0LY75JG_VeA1TzsuNHe1atXozvdfw4EtPO3eeTebsSw';
+const SUPABASE_URL = 'https://kdizaecuxyiarimptcfw.supabase.co';
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function escutaMensagensEmTempoReal(adicionaMensagem) {
+    return supabaseClient
+        .from('mensagens')
+        .on('INSERT', (respostaLive) => {
+            adicionaMensagem(respostaLive.new);
+        })
+        .subscribe();
+}
 
 export default function ChatPage() {
 
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzI4NTcwMywiZXhwIjoxOTU4ODYxNzAzfQ.0LY75JG_VeA1TzsuNHe1atXozvdfw4EtPO3eeTebsSw';
-    const SUPABASE_URL = 'https://kdizaecuxyiarimptcfw.supabase.co';
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+    const roteamento = useRouter();
+    const usuarioLogado = roteamento.query.username;
+    // console.log('Usuário Logado', usuarioLogado);
+    // console.log(roteamento.query);
     const [mensagem, setMensagem] = React.useState('');
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
@@ -21,63 +36,57 @@ export default function ChatPage() {
             .then(({ data }) => {
                 console.log("Dados da consulta: ", data);
                 setListaDeMensagens(data);
-                setLoading(false);
+                setTimeout(() => setLoading(false), 2000);
+
             });
+            
+        const subscription = escutaMensagensEmTempoReal((novaMensagem) => {
+            console.log('Nova mensagem:', novaMensagem);
+            console.log('listaDeMensagens:', listaDeMensagens);
+            // Quero reusar um valor de referencia (objeto/array) 
+            // Passar uma função pro setState
+
+            // setListaDeMensagens([
+            //     novaMensagem,
+            //     ...listaDeMensagens
+            // ])
+            setListaDeMensagens((valorAtualDaLista) => {
+                console.log('valorAtualDaLista:', valorAtualDaLista);
+                return [
+                    novaMensagem,
+                    ...valorAtualDaLista,
+                ]
+            });
+        });
+        return () => {
+            subscription.unsubscribe();
+        }
+
     }, []);
 
-    /*AULA 04 - 
-    fetch("https://api.github.com/users/RichardKT88").then(async(respostaDoServidor) => {
-        const respostaEsperada = await respostaDoServidor.json();
-        console.log(respostaEsperada);
-    })
-    - [X] Mostra um loading enquanto está carregando (useEffect não passou);
-    - [ ] mouseover sobre a foto da pessoa
-    - [ ] mandar pull, imagem ou anexos.
-     * /
-
-    /*
-    // Usuário
-    - Usuário digita no campo textarea
-    - Aperta enter para enviar
-    - Tem que adicionar o texto na listagem
-    
-    // Dev
-    - [X] Campo criado
-    - [X] Vamos usar o onChange usa o useState (ter if pra caso seja enter pra limpar a variavel)
-    - [X] Lista de mensagens 
-    */
-    // Notes
-    /*
-        - O navegador não trabalha com objetos, ele trabalha com array de React ou um array de strings.
-    */
-    // Desafio
-    /*
-        - [X] colocar um botão de Ok que tenha o mesmo comportamento ao pressionar o Enter.
-        - [X] colocar um botãozinho de X para apagar a mensagem. Dica: Utilizar o Filter
-    */
     function handleNovaMensagem(novaMensagem) {
 
         const mensagem = {
             // id: listaDeMensagens.length + 1,
-            de: 'vanessametonini',
+            de: 'usuarioLogado',
             texto: novaMensagem,
         };
 
         supabaseClient
             .from('mensagens')
+            // Tem que ser um objeto com os MESMOS CAMPOS que você escreveu no supabase
             .insert([
                 mensagem
             ])
             .then(({ data }) => {
                 console.log("Criando mensagem: ", data);
                 //Abaixo são lógicas de estado.
-                setListaDeMensagens([
-                    data[0],
-                    //o Spread Operator(...lista) abre todos os item que tem nesta lista e espalha eles na nova, porque senão ele criaria um array dentro de um array.
-                    ...listaDeMensagens,
-                ]);
-            })
-
+                // setListaDeMensagens([
+                //     data[0],
+                //     //o Spread Operator(...lista) abre todos os item que tem nesta lista e espalha eles na nova, porque senão ele criaria um array dentro de um array.
+                //     ...listaDeMensagens,
+                // ]);
+            });
 
         setMensagem('');
     }
@@ -91,8 +100,24 @@ export default function ChatPage() {
         setListaDeMensagens(listaDeMensagensFiltrada)
     }
 
+    function Carregamento() {
+        return (
+            <Image src="https://giffiles.alphacoders.com/144/144512.gif"
+                styleSheet={{
+                    marginLeft: 'auto',
+                    width: '100%',
+                    height: '80%',
+                    borderRadius: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            />
+        )
+    }
 
-    const content = loading ? <Icon label="Icon Component" name="FaFirefox" size='20ch'/> : <MessageList mensagens={listaDeMensagens} deletaMensagem={deletaMensagem} />
+
+    const content = loading ? <Carregamento /> : <MessageList mensagens={listaDeMensagens} deletaMensagem={deletaMensagem} />
     return (
         <Box
             styleSheet={{
@@ -165,16 +190,24 @@ export default function ChatPage() {
                                 border: '0',
                                 resize: 'none',
                                 borderRadius: '5px',
-                                padding: '6px 8px',
-                                backgroundColor: appConfig.theme.colors.neutrals[800],
+                                padding: '6px 10px',
                                 marginRight: '12px',
+                                backgroundColor: appConfig.theme.colors.neutrals[800],
                                 color: appConfig.theme.colors.neutrals[200],
+                            }}
+                        />
+                        {/* CallBack  é uma chamada de retorno, quando uma coisa que você queria terminou ele executa a função que nos passamos*/}
+                        <ButtonSendSticker
+                            onStickerClick={(sticker) => {
+                                // console.log('[USANDO O COMPONENTE] Salva esse sticker no banco', sticker);
+                                handleNovaMensagem(':sticker: ' + sticker);
                             }}
                         />
                         <Button label="Ok"
                             fullWidth
                             styleSheet={{
                                 maxWidth: '100px',
+                                height: '100%',
                             }}
                             buttonColors={{
                                 contrastColor: appConfig.theme.colors.neutrals["000"],
@@ -289,7 +322,20 @@ function MessageList(props) {
                                 X
                             </Text>
                         </Box>
-                        {mensagem.texto}
+                        {/* [Declarativo] */}
+                        {/* Condicional: {mensagem.texto.startsWith(':sticker:').toString()} */}
+                        {mensagem.texto.startsWith(':sticker:')
+                            ? (
+                                <Image src={mensagem.texto.replace(':sticker:', '')} />
+                            )
+                            : (
+                                mensagem.texto
+                            )}
+                        {/* if mensagem de texto possui stickers:
+                           mostra a imagem
+                        else 
+                           mensagem.texto */}
+                        {/* {mensagem.texto} */}
                     </Text>
                 );
             })}

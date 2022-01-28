@@ -1,0 +1,32 @@
+AULA 05 -
+    Não teve desafios.
+    
+AULA 04 - 
+    fetch("https://api.github.com/users/RichardKT88").then(async(respostaDoServidor) => {
+        const respostaEsperada = await respostaDoServidor.json();
+        console.log(respostaEsperada);
+    })
+    - [X] Mostra um loading enquanto está carregando (useEffect não passou);
+    - [ ] mouseover sobre a foto da pessoa
+    - [ ] mandar pull, imagem ou anexos.
+     * /
+AULA 03 - 
+    /*
+    // Usuário
+    - Usuário digita no campo textarea
+    - Aperta enter para enviar
+    - Tem que adicionar o texto na listagem
+    
+    // Dev
+    - [X] Campo criado
+    - [X] Vamos usar o onChange usa o useState (ter if pra caso seja enter pra limpar a variavel)
+    - [X] Lista de mensagens 
+    */
+    // Notes
+    /*
+        - O navegador não trabalha com objetos, ele trabalha com array de React ou um array de strings.
+    */
+    // Desafio
+    /*
+        - [X] colocar um botão de Ok que tenha o mesmo comportamento ao pressionar o Enter.
+        - [X] colocar um botãozinho de X para apagar a mensagem. Dica: Utilizar o Filter
